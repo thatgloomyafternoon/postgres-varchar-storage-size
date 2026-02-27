@@ -46,11 +46,13 @@ To run this experiment, you will need:
 
 When you run `table_size.sql`, you will get a result similar to this:
 
-| table_1 | table_2                  |
-|:--------|:-------------------------|
-| 48 kB   | 80 kB *(example values)* |
+| table_1 | table_2                   |
+|:--------|:--------------------------|
+| 160 kB  | 320 kB *(example values)* |
 
 **What's actually happening?**
 In PostgreSQL, `VARCHAR(n)` does not pad the string with spaces. The space consumed on disk is determined by the *actual length of the string inserted* plus a small amount of overhead (usually 1 or 4 bytes for the length word), not the declared maximum length `n`.
 
 If `table_1` and `table_2` contain strings of the exact same length, their disk sizes will be identical. If `table_2` is populated with longer strings (closer to its 255 characters limit), `table_2` will be larger purely because the inserted payload is larger, not because the schema reserved more space.
+
+This implies that the attribute `length` in `@Column` annotation in Spring Boot (which in turns control the argument for `VARCHAR(x)` in the generated DDL) does not impact on the storage efficiency, it only restricts the maximum length of string that can be inserted.
